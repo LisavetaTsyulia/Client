@@ -2,21 +2,20 @@ package gui;
 
 import connection.Request;
 import connection.RequestHandler;
+import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
-import javafx.scene.Node;
-import javafx.scene.Scene;
+import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.effect.PerspectiveTransform;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
-import java.util.Date;
 
 public class MainScene  extends Scene {
     Group root;
@@ -47,6 +46,9 @@ public class MainScene  extends Scene {
             if (date != null) {
                 Request request = new Request("send", ">>", "date", date.toString());
                 RequestHandler.getInstance().sendMes(request);
+                //request = new Request("get", ">>", "filmId",
+                //        "Select distinct filmId from seans where date = " + date.toString() + ";");
+                //RequestHandler.getInstance().sendMes(request);
                 Group root = new Group();
                 Stage stage = new Stage();
                 stage.setTitle("Second Stage");
@@ -54,7 +56,6 @@ public class MainScene  extends Scene {
                 second.fillScene(date.toString());
                 stage.setScene(second);
                 stage.show();
-                // Hide this current window (if this is what you want)
                 ((Node) (event.getSource())).getScene().getWindow().hide();
             }
         });
@@ -65,8 +66,6 @@ public class MainScene  extends Scene {
         sepH.setOrientation(Orientation.HORIZONTAL);
         sepH.setStyle("-fx-background-color: #4478b6;-fx-background-insets:1;");
 
-        vertical.getChildren().addAll(label, datePicker, btn, sepH);
-
         HBox hbox = new HBox();
         hbox.setLayoutX(20);
         hbox.setLayoutY(20);
@@ -74,38 +73,18 @@ public class MainScene  extends Scene {
         hbox.setPrefHeight(200);
         hbox.setAlignment(Pos.CENTER);
 
-        final PerspectiveTransform pt=new PerspectiveTransform();
-        final ImageView[] imv=new ImageView[3];
-        /*
-        for(int i = 1; i <= 3 ; i++) {
-            Image im =
-                     new Image(this.getClass().getResource("images/image"+i+".jpg").toString());
+        final PerspectiveTransform pt = new PerspectiveTransform();
+        final ImageView[] imv = new ImageView[3];
+
+        for(int i = 0; i <= 2 ; i++) {
+            //Image im = new Image(getClass().getResource("file:resources/image1.jpg").toString());
+            Image im = new Image("file:resources/image1.jpg",160,160,false,true);
             imv[i] = new ImageView(im);
-            imv[i].setFitHeight(150);
-            imv[i].setFitWidth(150);
-            imv[i].setPreserveRatio(true);
-            pt.setLlx(imv[i].getX());
-            pt.setUlx(imv[i].getX());
-            pt.setLly(imv[i].getY()+150.0);
-            pt.setUly(imv[i].getY());
-            pt.setLrx(imv[i].getX()+180.0);
-            pt.setUrx(imv[i].getX()+180.0);
-            pt.setLry(imv[i].getY()+130.0);
-            pt.setUry(imv[i].getY()+20.0);
-            imv[i].setEffect(pt);
-            final int l=i;
-            imv[i].setOnMouseEntered(new EventHandler<MouseEvent>() {
-                public void handle(MouseEvent event) {
-                    imv[l].setEffect(null);
-                }});
-            imv[i].setOnMouseExited(new EventHandler<MouseEvent>() {
-                public void handle(MouseEvent event) {
-                    imv[l].setEffect(pt);
-                }});
             hbox.getChildren().add(imv[i]);
         }
-        */
-        root.getChildren().addAll(vertical, hbox);
+
+        vertical.getChildren().addAll(label, datePicker, btn, sepH, hbox);
+        root.getChildren().addAll(vertical);
 
     }
 }

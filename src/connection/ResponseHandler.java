@@ -22,6 +22,7 @@ public class ResponseHandler extends Thread{
                     String line = br.readLine();
                     if (line != null) {
                         Response response = new Response(line);
+                        System.out.println(response.toString());
                     }
                 } catch (SocketTimeoutException ignored) {
                 } catch (Exception e) {

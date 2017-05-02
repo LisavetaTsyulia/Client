@@ -38,6 +38,6 @@ public class RequestHandler {
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
-        //writer.close();
+        writer.close();
     }
 }

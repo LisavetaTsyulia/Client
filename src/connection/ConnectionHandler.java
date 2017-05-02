@@ -12,9 +12,6 @@ public class ConnectionHandler {
             new ResponseHandler(socket).start();
             System.out.println("networking is working");
             RequestHandler.getInstance().setNetThings(socket);
-
-            //Request request = new Request("get", ">>", "name");
-            //RequestHandler.getInstance().sendMes(request);
         } catch (IOException e) {
             e.printStackTrace();
         }
