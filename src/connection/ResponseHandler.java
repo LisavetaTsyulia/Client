@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 public class ResponseHandler extends Thread{
     private Socket socket;
@@ -15,14 +16,14 @@ public class ResponseHandler extends Thread{
     @Override
     public void run() {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+            socket.setSoTimeout(2000);
             while (isAlive) {
                 try {
-                    socket.setSoTimeout(2000);
                     String line = br.readLine();
                     if (line != null) {
                         Response response = new Response(line);
-                        System.out.println(response);
                     }
+                } catch (SocketTimeoutException ignored) {
                 } catch (Exception e) {
                     isAlive = false;
                 }

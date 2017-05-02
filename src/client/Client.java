@@ -10,8 +10,8 @@ public class Client {
     }
 
     public void go() {
-        setGUI();
         setNetwork();
+        setGUI();
     }
 
     private void setNetwork() {
