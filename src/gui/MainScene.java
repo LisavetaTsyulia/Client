@@ -63,7 +63,8 @@ public class MainScene  extends Scene {
         Button btn = new Button("Выбрать");
         btn.getStyleClass().add("button");
         btn.setOnAction(event -> {
-            date = checkInDatePicker.getValue();
+            date = checkOutDatePicker.getValue();
+            System.out.println(date);
             Group root = new Group();
             Stage stage = new Stage();
             stage.setTitle("Second Stage");

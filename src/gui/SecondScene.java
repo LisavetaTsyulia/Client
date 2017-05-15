@@ -27,6 +27,8 @@ public class SecondScene extends Scene {
     private GridPane gPFilms;
     private ComponentCreator componentCreator;
     private List<Film> filmList;
+    private int curRow = 1;
+    private int curCol = 0;
 
     public SecondScene(Group root, int width, int height, String date) {
         super(root, width, height);
@@ -59,13 +61,23 @@ public class SecondScene extends Scene {
         VBox vBox = componentCreator.vboxCreator();
         vBox.getChildren().addAll(lblDate, sepH, scrollPane);
         root.getChildren().addAll(vBox);
+
         fillFilmGrid();
+
     }
 
     private void fillFilmGrid() {
         for (Film film:
              filmList) {
-            gPFilms.add(createFilmVBox(film), 1, 1);
+            gPFilms.add(createFilmVBox(film), curCol++, curRow);
+            positionControl();
+        }
+    }
+
+    private void positionControl() {
+        if (curCol == 3){
+            curCol = 0;
+            curRow++;
         }
     }
 
