@@ -1,118 +1,149 @@
 package gui;
 
+import Film.Film;
+import connection.CurrentResponse;
+import connection.Request;
+import connection.RequestHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
-public class SecondScene extends Scene{
+public class SecondScene extends Scene {
     private Group root;
-    public SecondScene(Group root, int width, int height) {
+    private String dateFromClient;
+    private GridPane gPFilms;
+    private ComponentCreator componentCreator;
+    private List<Film> filmList;
+
+    public SecondScene(Group root, int width, int height, String date) {
         super(root, width, height);
         this.root = root;
         this.getStylesheets().add("css/styles.css");
+        dateFromClient = date;
+        componentCreator = new ComponentCreator();
+        createFilm();
     }
 
-    public void fillScene(String dateFromClient) {
-        VBox vBox = new VBox();
-        vBox.setLayoutX(20);
-        vBox.setLayoutY(20);
-        vBox.setSpacing(10);
+    public void fillScene() {
 
-        //DateFormat dateFormat = new SimpleDateFormat("LLLL", Locale.getDefault());
-        DateFormat dateFormat = new SimpleDateFormat("dd.MM");
-        Date date = new Date();
-        //Label label = new Label(dateFormat.format(date));
-        Label label = new Label(dateFromClient);
-        label.getStyleClass().add("header");
+        Label lblDate = componentCreator.labelCreator(dateFromClient);
+        Separator sepH = componentCreator.sepHCreator(600);
 
-        Separator sepH = new Separator();
-        sepH.setPrefWidth(600);
-        sepH.setOrientation(Orientation.HORIZONTAL);
-        sepH.getStyleClass().add("scroll-pane");
+        gPFilms = new GridPane();
+        gPFilms.setLayoutX(20);
+        gPFilms.setLayoutY(20);
+        gPFilms.setCursor(Cursor.TEXT);
+        gPFilms.setStyle("-fx-font:bold 14pt Arial;-fx-text-fill:#a0522d;");
+        gPFilms.setVgap(10);
+        gPFilms.setHgap(10);
 
-
-        Label lblFilm1 = new Label("Фильм1");
-        lblFilm1.getStyleClass().add("item-title");
-        Button btnFilm1 = new Button("Картинка");
-        /*
-        Image im=new Image(this.getClass().getResource("image.png").toString());
-        ImageView imv=new ImageView(im);
-        imv.setFitHeight(50);
-        imv.setFitWidth(50);
-        btnFilm1.setGraphic(imv);
-        */
-        btnFilm1.getStyleClass().add("button");
-        btnFilm1.setPrefSize(150, 200);
-        btnFilm1.setTextAlignment(TextAlignment.CENTER);
-        VBox filmBox = new VBox();
-        filmBox.setLayoutX(2);
-        filmBox.setLayoutY(2);
-        filmBox.setSpacing(3);
-        filmBox.getChildren().addAll(lblFilm1, btnFilm1);
-
-        Label lblFilm2 = new Label("Фильм2");
-        lblFilm2.getStyleClass().add("item-title");
-        Button btnFilm2 = new Button("Картинка2");
-        btnFilm2.getStyleClass().add("button");
-        btnFilm2.setPrefSize(150, 200);
-        btnFilm2.setTextAlignment(TextAlignment.CENTER);
-        VBox filmBox2 = new VBox();
-        filmBox.setLayoutX(2);
-        filmBox.setLayoutY(2);
-        filmBox.setSpacing(3);
-        filmBox.getChildren().addAll(lblFilm2, btnFilm2);
-
-        GridPane gridPane = new GridPane();
-        gridPane.setLayoutX(20);
-        gridPane.setLayoutY(20);
-        gridPane.setCursor(Cursor.TEXT);
-        gridPane.setStyle("-fx-font:bold 14pt Arial;-fx-text-fill:#a0522d;");
-        gridPane.setVgap(10);
-        gridPane.setHgap(10);
-        gridPane.add(filmBox, 1, 1);
-        gridPane.add(filmBox2, 1, 2);
-
-
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setLayoutX(10);
-        scrollPane.setLayoutY(10);
-        scrollPane.setCursor(Cursor.CLOSED_HAND);
+        ScrollPane scrollPane = componentCreator.scrollPaneCreator();
         scrollPane.setPrefSize(600, 400);
-        scrollPane.setTooltip(new Tooltip("Отправка данных"));
-        scrollPane.setContent(gridPane);
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scrollPane.setPannable(true);
+        scrollPane.setContent(gPFilms);
         scrollPane.setPrefViewportHeight(400);
         scrollPane.setPrefViewportWidth(600);
 
-        vBox.getChildren().addAll(label, sepH, scrollPane);
+        VBox vBox = componentCreator.vboxCreator();
+        vBox.getChildren().addAll(lblDate, sepH, scrollPane);
         root.getChildren().addAll(vBox);
+        fillFilmGrid();
     }
 
-    public VBox createFilmSet(String lable, String btnName) {
-        Label label = new Label(lable);
-        label.getStyleClass().add("item-title");
+    private void fillFilmGrid() {
+        for (Film film:
+             filmList) {
+            gPFilms.add(createFilmVBox(film), 1, 1);
+        }
+    }
 
-        Button btn = new Button(btnName);
+    private VBox createFilmVBox(Film film) {
+
+        Label filmName = new Label(film.getFilmName());
+        filmName.getStyleClass().add("item-title");
+
+        Button btn = new Button();
+        Image im = new Image("file:resources/" + film.getFilmImagePath() + ".jpg", 160, 160, false, true);
+        ImageView imv = new ImageView(im);
+        imv.setFitHeight(200);
+        imv.setFitWidth(150);
+        btn.setGraphic(imv);
         btn.getStyleClass().add("button");
         btn.setPrefSize(150, 200);
         btn.setTextAlignment(TextAlignment.CENTER);
+
+        Label country = new Label(film.getFilmCountry());
+        country.getStyleClass().add("item-title");
 
         VBox vBox = new VBox();
         vBox.setLayoutX(2);
         vBox.setLayoutY(2);
         vBox.setSpacing(3);
-        vBox.getChildren().addAll(label, btn);
-        return vBox ;
+        vBox.getChildren().addAll(filmName, btn, country);
+
+        return vBox;
+    }
+
+    private void createFilm() {
+        filmList = new ArrayList<Film>();
+        if (dateFromClient != null) {
+
+            Request request = new Request("send", ">>", "date", dateFromClient);
+            RequestHandler.getInstance().sendMes(request);
+
+            Request request2 = new Request("get", ">>", "filmId",
+                    "Select distinct filmId from seans where date = '" + dateFromClient + "';");
+            RequestHandler.getInstance().sendMes(request2);
+
+            String[] filmID = null;
+            boolean isTrue = true;
+            while (isTrue)
+                if (CurrentResponse.getInstance().getCurrentResponse() != null) {
+                    filmID = CurrentResponse.getInstance().getCurrentResponse().getArray();
+                    isTrue = false;
+                }
+            CurrentResponse.getInstance().setCurrentResponse(null);
+
+            for (String str : filmID) {
+                Request request3 = new Request("get", ">>",
+                        "name/countryID/length/lang/image/content",
+                        "Select * from Films where id = " + str + ";");
+                RequestHandler.getInstance().sendMes(request3);
+                String[] list = null;
+                isTrue = true;
+                while (isTrue) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException ignored) {
+                    }
+                    if (CurrentResponse.getInstance().getCurrentResponse() != null) {
+                        list = CurrentResponse.getInstance().getCurrentResponse().getArray();
+                        isTrue = false;
+                    }
+                }
+                CurrentResponse.getInstance().setCurrentResponse(null);
+                Film newFilm = new Film();
+                newFilm.setFilmID(Integer.parseInt(str));
+                newFilm.setFilmName(list[0]);
+                newFilm.setFilmCountry(list[1]);
+                newFilm.setFilmLength(list[2]);
+                newFilm.setFilmLang(list[3]);
+                newFilm.setFilmImagePath(list[4]);
+                newFilm.setFilmContent(list[5]);
+                filmList.add(newFilm);
+            }
+        }
     }
 }
