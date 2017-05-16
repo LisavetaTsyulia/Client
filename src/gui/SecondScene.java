@@ -7,6 +7,7 @@ import connection.RequestHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -14,6 +15,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.Stage;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -53,10 +55,10 @@ public class SecondScene extends Scene {
         gPFilms.setHgap(10);
 
         ScrollPane scrollPane = componentCreator.scrollPaneCreator();
-        scrollPane.setPrefSize(600, 400);
+        scrollPane.setPrefSize(650, 450);
         scrollPane.setContent(gPFilms);
-        scrollPane.setPrefViewportHeight(400);
-        scrollPane.setPrefViewportWidth(600);
+        scrollPane.setPrefViewportHeight(450);
+        scrollPane.setPrefViewportWidth(650);
 
         VBox vBox = componentCreator.vboxCreator();
         vBox.getChildren().addAll(lblDate, sepH, scrollPane);
@@ -87,7 +89,7 @@ public class SecondScene extends Scene {
         filmName.getStyleClass().add("item-title");
 
         Button btn = new Button();
-        Image im = new Image("file:resources/" + film.getFilmImagePath() + ".jpg", 160, 160, false, true);
+        Image im = new Image("file:resources/" + film.getFilmImagePath() + ".jpg", 150, 200, false, true);
         ImageView imv = new ImageView(im);
         imv.setFitHeight(200);
         imv.setFitWidth(150);
@@ -95,6 +97,17 @@ public class SecondScene extends Scene {
         btn.getStyleClass().add("button");
         btn.setPrefSize(150, 200);
         btn.setTextAlignment(TextAlignment.CENTER);
+        btn.setOnAction(event -> {
+            Group root = new Group();
+            Stage stage = new Stage();
+            stage.setTitle("Third Stage");
+            ThirdScene third = new ThirdScene(root, 700, 600, film, dateFromClient);
+            third.fillScene();
+            stage.setScene(third);
+            stage.show();
+            ((Node) (event.getSource())).getScene().getWindow().hide();
+
+        });
 
         Label country = new Label(film.getFilmCountry());
         country.getStyleClass().add("item-title");
