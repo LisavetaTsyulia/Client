@@ -1,5 +1,11 @@
 package gui;
 
+import Film.FilmArray;
+import Film.Film;
+import Seans.Seans;
+import connection.CurrentResponse;
+import connection.Request;
+import connection.RequestHandler;
 import javafx.application.Platform;
 import javafx.geometry.*;
 import javafx.scene.*;
@@ -10,20 +16,18 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 
 public class MainScene  extends Scene {
     private Group root;
-    private LocalDate date;
+    private Seans curSeans;
     private ComponentCreator componentCreator;
-
 
     public MainScene(Group root, int width, int height) {
         super(root, width, height);
         this.root = root;
         this.getStylesheets().add("css/styles.css");
         componentCreator = new ComponentCreator();
+        curSeans = new Seans();
         Platform.setImplicitExit(false);
     }
 
@@ -63,24 +67,26 @@ public class MainScene  extends Scene {
         Button btn = new Button("Выбрать");
         btn.getStyleClass().add("button");
         btn.setOnAction(event -> {
-            date = checkOutDatePicker.getValue();
-            System.out.println(date);
+            curSeans.setDate(checkOutDatePicker.getValue().toString());
             Group root = new Group();
             Stage stage = new Stage();
             stage.setTitle("Second Stage");
-            SecondScene second = new SecondScene(root, 700, 600, date.toString());
+            FilmsOnDateScene second = new FilmsOnDateScene(root, 700, 600, curSeans);
             second.fillScene();
             stage.setScene(second);
             stage.show();
             ((Node) (event.getSource())).getScene().getWindow().hide();
         });
+        Request request = new Request("get", ">>", "filmId",
+        "Select distinct filmId from seans where date = '" + LocalDate.now() + "' limit 3;");
+        RequestHandler.getInstance().sendMes(request);
 
-        final ImageView[] imv = new ImageView[3];
+        String[] filmID = CurrentResponse.getInstance().getCurResponseArray();
 
         for (int i = 0; i <= 2; i++) {
-            Image im = new Image("file:resources/image"+ (i+1)  +".jpg", 160, 160, false, true);
-            imv[i] = new ImageView(im);
-            hbox.getChildren().add(imv[i]);
+            Film curFilm = FilmArray.getInstance().loadFilm(filmID[i]);
+            VBox filmBox = FilmArray.getInstance().createFilmVBox(curFilm, curSeans);
+            hbox.getChildren().add(filmBox);
         }
 
         vertical.getChildren().addAll(label, checkOutDatePicker, btn, sepH, hbox);

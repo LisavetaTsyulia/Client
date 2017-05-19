@@ -1,18 +1,17 @@
 package gui;
 
 import Film.Film;
+import Seans.Seans;
 import connection.CurrentResponse;
 import connection.Request;
 import connection.RequestHandler;
 import javafx.geometry.Pos;
-import javafx.scene.Cursor;
-import javafx.scene.Group;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
+import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -20,27 +19,35 @@ import java.util.Map;
 import java.util.Set;
 
 
-public class ThirdScene extends Scene {
+public class FilmInfoScene extends Scene {
     private Film film;
     private ComponentCreator componentCreator;
     private Group root;
-    private String dateFromClient;
+    private Seans curSeans;
 
-    public ThirdScene(Parent root, double width, double height, Film film, String dateFromClient) {
+    public FilmInfoScene(Parent root, double width, double height, Film film, Seans curSeans) {
         super(root, width, height);
         this.getStylesheets().add("css/styles.css");
         this.film = film;
-        this.dateFromClient = dateFromClient;
+        this.curSeans = curSeans;
         this.root = (Group) root;
         componentCreator = new ComponentCreator();
     }
 
     public void fillScene() {
+        Button backBtn = componentCreator.backBtnCreator(curSeans);
         VBox pageBox = componentCreator.vboxCreator();
         Label filmName = componentCreator.labelCreator(film.getFilmName());
         Separator separator = componentCreator.sepHCreator(600);
 
         GridPane seansGridPane = new GridPane();
+        seansGridPane.setLayoutX(20);
+        seansGridPane.setLayoutY(20);
+        seansGridPane.setCursor(Cursor.TEXT);
+        seansGridPane.setStyle("-fx-font:bold 14pt Arial;-fx-text-fill:#a0522d;");
+        seansGridPane.setVgap(10);
+        seansGridPane.setHgap(10);
+
         ScrollPane seansScrollPane = componentCreator.scrollPaneCreator();
         seansScrollPane.setPrefSize(650, 150);
         seansScrollPane.setContent(seansGridPane);
@@ -51,14 +58,7 @@ public class ThirdScene extends Scene {
                 "Select * from Cinemas ;");
         RequestHandler.getInstance().sendMes(request);
 
-        String[] cinemas = null;
-        boolean isTrue = true;
-        while (isTrue)
-            if (CurrentResponse.getInstance().getCurrentResponse() != null) {
-                cinemas = CurrentResponse.getInstance().getCurrentResponse().getArray();
-                isTrue = false;
-            }
-        CurrentResponse.getInstance().setCurrentResponse(null);
+        String[] cinemas = CurrentResponse.getInstance().getCurResponseArray();
         HashMap<Integer, String> cinemasHmap = new HashMap<>();
 
         for(int i = 0 ; i < cinemas.length; i += 2) {
@@ -72,11 +72,11 @@ public class ThirdScene extends Scene {
             int curColIndex = 1;
 
             Request request2 = new Request("get", ">>", "time",
-                    "Select time from seans where date = '" + dateFromClient +
+                    "Select time from seans where date = '" + curSeans.getDate() +
                             "' AND filmId = " + film.getFilmID() + " AND cinemaID = " + mentry.getKey() + ";");
             RequestHandler.getInstance().sendMes(request2);
 
-            isTrue = true;
+            boolean isTrue = true;
             while (isTrue) {
                 try {
                     Thread.sleep(100);
@@ -84,16 +84,30 @@ public class ThirdScene extends Scene {
                 }
                 if (CurrentResponse.getInstance().getCurrentResponse() != null) {
                     if (!(";".equals(CurrentResponse.getInstance().getCurrentResponse().toString()))) {
+                        HBox cinemaBox = componentCreator.hBoxCreator();
                         seansGridPane.add(new Label((String) mentry.getValue()), curColIndex, (Integer) mentry.getKey());
                         String[] seans = CurrentResponse.getInstance().getCurrentResponse().getArray();
-                        if (seans.length != 0)
-                            for (String time :
-                                    seans) {
-                                Button btn = new Button(time);
-                                btn.getStyleClass().add("button");
-                                seansGridPane.add(btn, ++curColIndex, (Integer) mentry.getKey());
-                                System.out.println(time);
-                            }
+                        for (String time :
+                                seans) {
+                            Button btn = new Button(time);
+                            btn.setOnAction(event -> {
+                                curSeans.setTime(time);
+                                Group root = new Group();
+                                Stage stage = new Stage();
+                                stage.setTitle("Seans Stage");
+                                Integer cinemaID = (Integer) mentry.getKey();
+                                curSeans.setCinemaID(cinemaID);
+                                CinemaScene cinemaScene = new CinemaScene(root, 700, 600, curSeans);
+                                cinemaScene.fillScene();
+                                stage.setScene(cinemaScene);
+                                stage.show();
+                                ((Node) (event.getSource())).getScene().getWindow().hide();
+                            });
+                            btn.getStyleClass().add("button");
+                            cinemaBox.getChildren().add(btn);
+                            System.out.println(time);
+                        }
+                        seansGridPane.add(cinemaBox, ++curColIndex, (Integer) mentry.getKey());
                     }
                     isTrue = false;
                 }
@@ -101,7 +115,7 @@ public class ThirdScene extends Scene {
             CurrentResponse.getInstance().setCurrentResponse(null);
         }
 
-        pageBox.getChildren().addAll(filmName, createFilmInfo(), separator, seansScrollPane);
+        pageBox.getChildren().addAll(backBtn, filmName, createFilmInfo(), separator, seansScrollPane);
         root.getChildren().addAll(pageBox);
     }
 

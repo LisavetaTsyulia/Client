@@ -17,4 +17,21 @@ public class CurrentResponse {
     public Response getCurrentResponse() {
         return currentResponse;
     }
+
+    public String[] getCurResponseArray() {
+        String[] arr = null;
+        boolean isTrue = true;
+        while (isTrue) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ignored) {
+            }
+            if (CurrentResponse.getInstance().getCurrentResponse() != null) {
+                arr = CurrentResponse.getInstance().getCurrentResponse().getArray();
+                isTrue = false;
+            }
+        }
+        CurrentResponse.getInstance().setCurrentResponse(null);
+        return arr;
+    }
 }

@@ -1,12 +1,19 @@
 package gui;
 
+import Seans.Seans;
 import javafx.geometry.Orientation;
 import javafx.scene.Cursor;
+import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 public class ComponentCreator {
 
@@ -22,7 +29,7 @@ public class ComponentCreator {
         HBox hbox = new HBox();
         hbox.setLayoutX(20);
         hbox.setLayoutY(20);
-        hbox.setSpacing(40);
+        hbox.setSpacing(10);
         return hbox;
     }
 
@@ -49,6 +56,29 @@ public class ComponentCreator {
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setPannable(true);
         return scrollPane;
+    }
+
+    public Button backBtnCreator(Seans curSeans) {
+        Button backBtn = new Button();
+        Image im = new Image("file:resources/arr.png",
+                30, 30, false, true);
+        ImageView imv = new ImageView(im);
+        imv.setFitHeight(30);
+        imv.setFitWidth(30);
+        backBtn.setGraphic(imv);
+        backBtn.setStyle("-fx-background-color: white");
+        backBtn.setOnAction(event -> {
+            Group root = new Group();
+            Stage stage = new Stage();
+            stage.setTitle("Second Stage");
+            FilmsOnDateScene second = new FilmsOnDateScene(root, 700, 600, curSeans);
+            second.fillScene();
+            stage.setScene(second);
+            stage.show();
+            ((Node) (event.getSource())).getScene().getWindow().hide();
+        });
+        backBtn.setPrefSize(30, 30);
+        return backBtn;
     }
 
      /*
