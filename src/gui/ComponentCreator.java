@@ -35,7 +35,6 @@ public class ComponentCreator {
 
     public Label labelCreator(String title) {
         Label label = new Label(title);
-        label.getStyleClass().add("header");
         return label;
     }
 
@@ -58,7 +57,7 @@ public class ComponentCreator {
         return scrollPane;
     }
 
-    public Button backBtnCreator(Seans curSeans) {
+    public Button backBtnCreator(Stage prevStage) {
         Button backBtn = new Button();
         Image im = new Image("file:resources/arr.png",
                 30, 30, false, true);
@@ -68,13 +67,7 @@ public class ComponentCreator {
         backBtn.setGraphic(imv);
         backBtn.setStyle("-fx-background-color: white");
         backBtn.setOnAction(event -> {
-            Group root = new Group();
-            Stage stage = new Stage();
-            stage.setTitle("Second Stage");
-            FilmsOnDateScene second = new FilmsOnDateScene(root, 700, 600, curSeans);
-            second.fillScene();
-            stage.setScene(second);
-            stage.show();
+            prevStage.show();
             ((Node) (event.getSource())).getScene().getWindow().hide();
         });
         backBtn.setPrefSize(30, 30);

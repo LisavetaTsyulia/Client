@@ -2,43 +2,49 @@ package gui;
 
 import Film.Film;
 import Seans.Seans;
-import connection.CurrentResponse;
-import connection.Request;
-import connection.RequestHandler;
+import connection.*;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.scene.image.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 
 public class FilmInfoScene extends Scene {
-    private Film film;
-    private ComponentCreator componentCreator;
     private Group root;
     private Seans curSeans;
+    private Stage parentStage;
+    private Stage thisStage;
+    private ComponentCreator componentCreator;
+    private Film film;
 
-    public FilmInfoScene(Parent root, double width, double height, Film film, Seans curSeans) {
+    public FilmInfoScene(Parent root, double width, double height, Film film, Seans curSeans, Stage parentStage, Stage thisStage) {
         super(root, width, height);
-        this.getStylesheets().add("css/styles.css");
         this.film = film;
         this.curSeans = curSeans;
         this.root = (Group) root;
+        this.parentStage = parentStage;
+        this.thisStage = thisStage;
+        this.getStylesheets().add("css/styles.css");
         componentCreator = new ComponentCreator();
     }
 
     public void fillScene() {
-        Button backBtn = componentCreator.backBtnCreator(curSeans);
-        VBox pageBox = componentCreator.vboxCreator();
+        Button backBtn = componentCreator.backBtnCreator(parentStage);
         Label filmName = componentCreator.labelCreator(film.getFilmName());
-        Separator separator = componentCreator.sepHCreator(600);
+        filmName.setId("beautiful");
+
+        HBox nameAndBackBtn = componentCreator.hBoxCreator();
+        nameAndBackBtn.setSpacing(100);
+        nameAndBackBtn.setAlignment(Pos.BASELINE_LEFT);
+        nameAndBackBtn.getChildren().addAll(backBtn, filmName);
+
+        Separator separator = componentCreator.sepHCreator(650);
 
         GridPane seansGridPane = new GridPane();
         seansGridPane.setLayoutX(20);
@@ -73,7 +79,7 @@ public class FilmInfoScene extends Scene {
 
             Request request2 = new Request("get", ">>", "time",
                     "Select time from seans where date = '" + curSeans.getDate() +
-                            "' AND filmId = " + film.getFilmID() + " AND cinemaID = " + mentry.getKey() + ";");
+                            "' AND filmId = " + film.getFilmID() + " AND cinemaID = " + mentry.getKey() + " order by time;");
             RequestHandler.getInstance().sendMes(request2);
 
             boolean isTrue = true;
@@ -97,13 +103,16 @@ public class FilmInfoScene extends Scene {
                                 stage.setTitle("Seans Stage");
                                 Integer cinemaID = (Integer) mentry.getKey();
                                 curSeans.setCinemaID(cinemaID);
-                                CinemaScene cinemaScene = new CinemaScene(root, 700, 600, curSeans);
-                                cinemaScene.fillScene();
+                                CinemaScene cinemaScene = new CinemaScene(root, 750, 650, curSeans, thisStage);
+                                cinemaScene.fillScene(stage);
                                 stage.setScene(cinemaScene);
                                 stage.show();
                                 ((Node) (event.getSource())).getScene().getWindow().hide();
                             });
                             btn.getStyleClass().add("button");
+                            if (!compareTime(time)) {
+                                btn.setDisable(true);
+                            }
                             cinemaBox.getChildren().add(btn);
                             System.out.println(time);
                         }
@@ -115,8 +124,26 @@ public class FilmInfoScene extends Scene {
             CurrentResponse.getInstance().setCurrentResponse(null);
         }
 
-        pageBox.getChildren().addAll(backBtn, filmName, createFilmInfo(), separator, seansScrollPane);
+        VBox pageBox = componentCreator.vboxCreator();
+        pageBox.getChildren().addAll(nameAndBackBtn, createFilmInfo(), separator, seansScrollPane);
         root.getChildren().addAll(pageBox);
+    }
+
+    private boolean compareTime(String time) {
+        String startTime = time;
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        String endTime = new SimpleDateFormat("HH:mm:ss").format(calendar.getTime());
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        try {
+            Date d1 = sdf.parse(startTime);
+            Date d2 = sdf.parse(endTime);
+            long elapsed = d2.getTime() - d1.getTime();
+            if (elapsed < 0)
+                return true;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     private HBox createFilmInfo() {

@@ -9,7 +9,7 @@
 }
 
 .item-title{
-    -fx-font-size: 11pt;
+    -fx-font-size: 20pt;
     -fx-font-family: "Segoe UI Semibold";
     -fx-text-fill: #1d1d1d;
     -fx-opacity: 0.6;
@@ -23,7 +23,6 @@
 
 .button {
     -fx-padding: 5 22 5 22;
-    -fx-border-color: #4478b6;
     -fx-border-width: 2;
 
     -fx-background-radius: 0;
@@ -60,15 +59,7 @@
     -fx-text-fill: white;
 }
 
-.button:default
-{
-    -fx-background-color: #008287;
-    -fx-text-fill: #ffffff;
-}
 
-.button:default:hover{
-    -fx-background-color: #219297;
-}
 
 /*******************************************************************************
  *                                                                             *
@@ -647,4 +638,20 @@
 }
 #big-yellow Text {
     -fx-effect: dropshadow( one-pass-box , rgba(255,255,255,0.5) , 0, 0.0 , 0 , 1);
+}
+#new-orange {
+    -fx-text-fill: #054884;
+    -fx-font-family: serif;
+    -fx-font-size: 25px;
+    -fx-font-weight: normal;
+    -fx-line-height: 48px;
+    -fx-margin: 0;
+}
+#beautiful {
+    -fx-text-fill: #054884;
+    -fx-font-family: serif;
+    -fx-font-size: 55px;
+    -fx-font-weight: normal;
+    -fx-line-height: 48px;
+    -fx-margin: 0;
 }

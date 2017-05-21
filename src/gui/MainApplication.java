@@ -10,7 +10,7 @@ public class MainApplication extends Application {
     public void start(Stage primaryStage) throws Exception{
         Group root = new Group();
         primaryStage.setTitle("First");
-        MainScene first = new MainScene(root, 700, 600);
+        MainScene first = new MainScene(root, 750, 650, primaryStage);
         first.fillScene();
         primaryStage.setScene(first);
         primaryStage.show();

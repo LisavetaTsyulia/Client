@@ -10,7 +10,6 @@ import javafx.application.Platform;
 import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
-import javafx.scene.image.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -21,11 +20,13 @@ public class MainScene  extends Scene {
     private Group root;
     private Seans curSeans;
     private ComponentCreator componentCreator;
+    private Stage thisStage;
 
-    public MainScene(Group root, int width, int height) {
+    public MainScene(Group root, int width, int height, Stage primaryStage) {
         super(root, width, height);
         this.root = root;
         this.getStylesheets().add("css/styles.css");
+        thisStage = primaryStage;
         componentCreator = new ComponentCreator();
         curSeans = new Seans();
         Platform.setImplicitExit(false);
@@ -34,7 +35,8 @@ public class MainScene  extends Scene {
     public void fillScene() {
         VBox vertical = componentCreator.vboxCreator();
         Label label = componentCreator.labelCreator("Выберите дату");
-        Separator sepH = componentCreator.sepHCreator(600);
+        label.setId("beautiful");
+        Separator sepH = componentCreator.sepHCreator(650);
         HBox hbox = componentCreator.hBoxCreator();
         hbox.setPrefHeight(200);
         hbox.setAlignment(Pos.CENTER);
@@ -71,7 +73,7 @@ public class MainScene  extends Scene {
             Group root = new Group();
             Stage stage = new Stage();
             stage.setTitle("Second Stage");
-            FilmsOnDateScene second = new FilmsOnDateScene(root, 700, 600, curSeans);
+            FilmsOnDateScene second = new FilmsOnDateScene(root, 750, 650, curSeans, thisStage, stage);
             second.fillScene();
             stage.setScene(second);
             stage.show();
@@ -85,7 +87,7 @@ public class MainScene  extends Scene {
 
         for (int i = 0; i <= 2; i++) {
             Film curFilm = FilmArray.getInstance().loadFilm(filmID[i]);
-            VBox filmBox = FilmArray.getInstance().createFilmVBox(curFilm, curSeans);
+            VBox filmBox = FilmArray.getInstance().createFilmVBox(curFilm, curSeans, thisStage);
             hbox.getChildren().add(filmBox);
         }
 
@@ -93,4 +95,5 @@ public class MainScene  extends Scene {
         root.getChildren().addAll(vertical);
 
     }
+
 }

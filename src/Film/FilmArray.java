@@ -55,7 +55,7 @@ public class FilmArray {
     public Film loadFilm(String filmId) {
         if (!filmHashMap.containsKey(Integer.parseInt(filmId))) {
             Request request3 = new Request("get", ">>",
-                    "name/countryID/length/lang/image/content",
+                    "name/country/length/lang/image/content",
                     "Select * from Films where id = " + filmId + ";");
             RequestHandler.getInstance().sendMes(request3);
             String[] list = CurrentResponse.getInstance().getCurResponseArray();
@@ -72,12 +72,12 @@ public class FilmArray {
         return filmHashMap.get(Integer.parseInt(filmId));
     }
 
-    public VBox createFilmVBox(Film film, Seans curSeans) {
+    public VBox createFilmVBox(Film film, Seans curSeans, Stage parentStage) {
 
         if (curSeans.getDate() == null)
             curSeans.setDate(String.valueOf(LocalDate.now()));
         Label filmName = new Label(film.getFilmName());
-        filmName.getStyleClass().add("item-title");
+        filmName.setId("new-orange");
 
         Button btn = new Button();
         Image im = new Image("file:resources/" + film.getFilmImagePath() + ".jpg", 150, 200, false, true);
@@ -93,7 +93,7 @@ public class FilmArray {
             Group root = new Group();
             Stage stage = new Stage();
             stage.setTitle("Third Stage");
-            FilmInfoScene third = new FilmInfoScene(root, 700, 600, film, curSeans);
+            FilmInfoScene third = new FilmInfoScene(root, 750, 650, film, curSeans, parentStage, stage);
             third.fillScene();
             stage.setScene(third);
             stage.show();

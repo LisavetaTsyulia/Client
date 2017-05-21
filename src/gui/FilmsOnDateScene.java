@@ -3,55 +3,51 @@ package gui;
 import Film.*;
 import Seans.Seans;
 import connection.*;
+import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class FilmsOnDateScene extends Scene {
     private Group root;
     private Seans curSeans;
+    private Stage parentStage;
+    private Stage thisStage;
     private GridPane gPFilms;
     private ComponentCreator componentCreator;
     private int curRow = 1;
     private int curCol = 0;
 
-    public FilmsOnDateScene(Group root, int width, int height, Seans curSeans) {
+    public FilmsOnDateScene(Group root, int width, int height, Seans curSeans, Stage parentStage, Stage thisStage) {
         super(root, width, height);
         this.root = root;
-        this.getStylesheets().add("css/styles.css");
         this.curSeans = curSeans;
+        this.parentStage = parentStage;
+        this.thisStage = thisStage;
+        this.getStylesheets().add("css/styles.css");
         componentCreator = new ComponentCreator();
     }
 
     public void fillScene() {
         createFilm();
-        Button backBtn = new Button();
-        Image im = new Image("file:resources/arr.png", 30, 30, false, true);
-        ImageView imv = new ImageView(im);
-        imv.setFitHeight(30);
-        imv.setFitWidth(30);
-        backBtn.setGraphic(imv);
-        backBtn.setStyle("-fx-background-color: white");
-        backBtn.setOnAction(event -> {
-            Group root = new Group();
-            Stage stage = new Stage();
-            stage.setTitle("First Stage");
-            MainScene mainScene = new MainScene(root, 700, 600);
-            mainScene.fillScene();
-            stage.setScene(mainScene);
-            stage.show();
-            ((Node) (event.getSource())).getScene().getWindow().hide();
-
-        });
+        Button backBtn = componentCreator.backBtnCreator(parentStage);
         backBtn.setPrefSize(30, 30);
+        Label lblDate = componentCreator.labelCreator(covertDateFormat(curSeans.getDate()));
+        lblDate.setId("beautiful");
+        HBox nameAndBackBtn = componentCreator.hBoxCreator();
+        nameAndBackBtn.setAlignment(Pos.BASELINE_LEFT);
+        nameAndBackBtn.setSpacing(100);
+        nameAndBackBtn.getChildren().addAll(backBtn, lblDate);
 
-        Label lblDate = componentCreator.labelCreator(curSeans.getDate());
-        Separator sepH = componentCreator.sepHCreator(600);
+        Separator sepH = componentCreator.sepHCreator(650);
 
         gPFilms = new GridPane();
         gPFilms.setLayoutX(20);
@@ -62,17 +58,34 @@ public class FilmsOnDateScene extends Scene {
         gPFilms.setHgap(10);
 
         ScrollPane scrollPane = componentCreator.scrollPaneCreator();
-        scrollPane.setPrefSize(650, 450);
+        scrollPane.setPrefSize(700, 500);
         scrollPane.setContent(gPFilms);
         scrollPane.setPrefViewportHeight(450);
         scrollPane.setPrefViewportWidth(650);
 
         VBox vBox = componentCreator.vboxCreator();
-        vBox.getChildren().addAll(backBtn, lblDate, sepH, scrollPane);
+        vBox.getChildren().addAll(nameAndBackBtn, sepH, scrollPane);
         root.getChildren().addAll(vBox);
 
         fillFilmGrid();
 
+    }
+
+    private String covertDateFormat(String oldDateString) {
+        final String OLD_FORMAT = "yyyy-MM-dd";
+        final String NEW_FORMAT = "dd.MM.yyyy";
+        String newDateString;
+
+        SimpleDateFormat sdf = new SimpleDateFormat(OLD_FORMAT);
+        Date d = null;
+        try {
+            d = sdf.parse(oldDateString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        sdf.applyPattern(NEW_FORMAT);
+        newDateString = sdf.format(d);
+        return newDateString;
     }
 
     private void fillFilmGrid() {
@@ -81,7 +94,7 @@ public class FilmsOnDateScene extends Scene {
         Iterator iterator = set.iterator();
         while(iterator.hasNext()) {
             Map.Entry mentry = (Map.Entry) iterator.next();
-            gPFilms.add(FilmArray.getInstance().createFilmVBox( (Film) mentry.getValue(), curSeans), curCol++, curRow);
+            gPFilms.add(FilmArray.getInstance().createFilmVBox( (Film) mentry.getValue(), curSeans, thisStage), curCol++, curRow);
             positionControl();
         }
     }
