@@ -10,8 +10,12 @@ import javafx.scene.image.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 
 
@@ -97,24 +101,38 @@ public class FilmInfoScene extends Scene {
                                 seans) {
                             Button btn = new Button(time);
                             btn.setOnAction(event -> {
-                                curSeans.setTime(time);
-                                Group root = new Group();
-                                Stage stage = new Stage();
-                                stage.setTitle("Seans Stage");
-                                Integer cinemaID = (Integer) mentry.getKey();
-                                curSeans.setCinemaID(cinemaID);
-                                CinemaScene cinemaScene = new CinemaScene(root, 750, 650, curSeans, thisStage);
-                                cinemaScene.fillScene(stage);
-                                stage.setScene(cinemaScene);
-                                stage.show();
-                                ((Node) (event.getSource())).getScene().getWindow().hide();
+                                File f = new File("resources/login.txt");
+                                if(f.exists() && !f.isDirectory()) {
+                                    curSeans.setTime(time);
+                                    Group root = new Group();
+                                    Stage stage = new Stage();
+                                    stage.setTitle("Seans Stage");
+                                    Integer cinemaID = (Integer) mentry.getKey();
+                                    curSeans.setCinemaID(cinemaID);
+                                    CinemaScene cinemaScene = new CinemaScene(root, 750, 650, curSeans, thisStage);
+                                    cinemaScene.fillScene(stage);
+                                    stage.setScene(cinemaScene);
+                                    stage.show();
+                                    ((Node) (event.getSource())).getScene().getWindow().hide();
+                                } else {
+                                    Group root = new Group();
+                                    Stage stage = new Stage();
+                                    stage.setTitle("Authorize Stage");
+                                    AuthorizeScene authorizeScene = new AuthorizeScene(root, 750, 650, thisStage);
+                                    authorizeScene.fillScene();
+                                    stage.setScene(authorizeScene);
+                                    stage.show();
+                                    ((Node) (event.getSource())).getScene().getWindow().hide();
+                                }
+
                             });
                             btn.getStyleClass().add("button");
-                            if (!compareTime(time)) {
-                                btn.setDisable(true);
+                            if (curSeans.getDate().equals(String.valueOf(LocalDate.now()))) {
+                                if (!compareTime(time)) {
+                                    btn.setDisable(true);
+                                }
                             }
                             cinemaBox.getChildren().add(btn);
-                            System.out.println(time);
                         }
                         seansGridPane.add(cinemaBox, ++curColIndex, (Integer) mentry.getKey());
                     }

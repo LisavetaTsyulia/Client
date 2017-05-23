@@ -1,21 +1,13 @@
 package gui;
 
 import Seans.Seans;
-import connection.CurrentResponse;
-import connection.Request;
-import connection.RequestHandler;
+import connection.*;
 import javafx.geometry.Pos;
 import javafx.scene.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.stage.Popup;
-import javafx.stage.Stage;
+import javafx.scene.control.*;
+import javafx.scene.image.*;
+import javafx.scene.layout.*;
+import javafx.stage.*;
 
 public class CinemaScene extends Scene {
     private Group root;
@@ -26,6 +18,7 @@ public class CinemaScene extends Scene {
     private int rows;
     private int cols;
     private String seats;
+    private String seatNums = "";
     private GridPane seatsGridPane;
 
     public CinemaScene(Parent root, double width, double height, Seans curSeans, Stage parentStage) {
@@ -58,15 +51,16 @@ public class CinemaScene extends Scene {
             String [] seatsChanged = new String[cols * rows];
             for (int i = 0; i < cbs.length ; i++) {
                 if (cbs[i].isSelected() || cbs[i].isDisabled()) {
+                    if (cbs[i].isSelected()) seatNums += i + ",";
                     seatsChanged[i] = "1";
                 } else seatsChanged[i] = "0";
             }
             curSeans.setSeats(String.join("", seatsChanged));
             String answer;
-            if (updateSeatsInDB()) {
+            if (updateSeatsInDB(seatNums)) {
                 answer = "Билеты успешно заказаны";
             } else answer = "Извините, но эти билеты больше недоступны";
-
+            seatNums = "";
             createPopupWindow(stage, answer, seatsGridPane);
         });
 
@@ -97,6 +91,7 @@ public class CinemaScene extends Scene {
 
         Label lbl = new Label(answer);
         lbl.setWrapText(true);
+        lbl.setAlignment(Pos.BASELINE_CENTER);
         Button btn = new Button("OK");
         btn.setOnAction(event -> {
             seatsGridPane.getChildren().clear();
@@ -136,9 +131,11 @@ public class CinemaScene extends Scene {
         seats = CurrentResponse.getInstance().getCurResponseArray()[0];
     }
 
-    private boolean updateSeatsInDB() {
+    private boolean updateSeatsInDB(String seatNums) {
         Request request = new Request("send", ">>", "seats",
                 "Update seans set seats  = '" + curSeans.getSeats() + "' where cinemaID = " + curSeans.getCinemaID()
+                        + " AND time = '" + curSeans.getTime() + "' AND date = '" + curSeans.getDate() + "';/" + seatNums
+                        + "/Select seats from seans where cinemaID = " + curSeans.getCinemaID()
                         + " AND time = '" + curSeans.getTime() + "' AND date = '" + curSeans.getDate() + "';");
         RequestHandler.getInstance().sendMes(request);
         return Boolean.parseBoolean(CurrentResponse.getInstance().getCurResponseArray()[0]);
